@@ -1,2 +1,16 @@
-*
+# Ignore raw data files
+*.csv
+*.json
+*.parquet
+*.pkl
+*.h5
+*.hdf5
+*.npy
+*.npz
+*.zip
+*.tar
+*.gz
+
+# Allow source files
+!*.py
 !.gitignore
