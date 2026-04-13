@@ -1,2 +1,18 @@
-*
-!.gitignore
+# Ignore large data files but allow source code
+*.csv
+*.parquet
+*.json
+*.jsonl
+*.npy
+*.npz
+*.pkl
+*.h5
+*.hdf5
+*.feather
+*.arrow
+*.db
+*.sqlite
+*.zip
+*.tar
+*.gz
+*.bin
