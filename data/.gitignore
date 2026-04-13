@@ -1,2 +1,3 @@
-*
-!.gitignore
+*.csv
+*.zip
+taxi_zones/
