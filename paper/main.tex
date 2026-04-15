@@ -1,0 +1,167 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
+
+\title{Towards Benchmarking Self-Healing in MLOps Pipelines: A Controlled Experimental Study of Failure Detection and Recovery Strategies}
+
+\author{
+\IEEEauthorblockN{Swapnil Pramanik, Angad Deval, Devender Singh Shekhawat, Mahatva Varshney}
+\IEEEauthorblockA{School of Computer Science and Engineering Technology\\
+Bennett University\\
+Email: s24cseu2214@bennett.edu.in, s24cseu2336@bennett.edu.in,\\
+s24cseu2213@bennett.edu.in, s24cseu2210@bennett.edu.in}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Modern machine learning systems rely heavily on MLOps pipelines for automated training, deployment, and monitoring. While recent advances have improved automation, reproducibility, and lifecycle management, existing pipelines remain vulnerable to operational failures such as data drift, schema inconsistencies, and training disruptions. Despite this, there is no standardized framework for evaluating pipeline resilience and recovery capabilities.
+
+In this work, we propose a lightweight benchmarking framework for evaluating self-healing behavior in MLOps pipelines. We introduce the Self-Healing Score (SHS), a composite metric that captures detection effectiveness, response efficiency, coverage, and stability. Through controlled fault injection experiments, we evaluate multiple pipeline strategies under realistic failure scenarios.
+
+Our findings reveal a novel failure mode termed \textit{Retraining Buffer Poisoning}, where retraining on drift-contaminated data leads to progressive model degradation despite accurate fault detection. This highlights a critical decoupling between detection and recovery performance. Additionally, we show that pipeline ranking stability depends strongly on score separation, emphasizing the importance of metric sensitivity analysis.
+
+The proposed framework provides a reproducible and extensible approach for benchmarking MLOps reliability, representing a step toward standardized evaluation of ML system robustness.
+\end{abstract}
+
+\section{Introduction}
+
+Machine learning systems have transitioned from static models to continuously evolving pipelines, giving rise to the field of MLOps. These pipelines automate data processing, model training, deployment, and monitoring, enabling scalable production systems.
+
+However, real-world MLOps pipelines are inherently fragile. Failures such as data drift, schema mismatches, and training interruptions can significantly degrade system performance. Current systems rely heavily on manual debugging and intervention, making them unsuitable for fully autonomous deployments.
+
+While significant research has focused on improving automation and reproducibility, there is a lack of systematic evaluation of pipeline reliability. Unlike model-centric evaluation, where standardized benchmarks exist, MLOps lacks unified metrics and evaluation protocols for assessing resilience.
+
+In this work, we propose a benchmarking framework for evaluating self-healing pipelines. We introduce the Self-Healing Score (SHS) and evaluate pipeline behavior under controlled fault injection. Preliminary validation demonstrates metric face validity, with rankings aligning with expected behavior.
+
+Furthermore, we identify a novel failure mode—\textit{Retraining Buffer Poisoning}—that exposes limitations in existing retraining strategies. This work contributes toward establishing standardized evaluation practices for MLOps reliability.
+
+\section{Related Work}
+
+\subsection{MLOps Automation}
+Existing systems focus on pipeline automation and orchestration. While they improve efficiency, they do not address runtime failure resilience.
+
+\subsection{Reproducibility Research}
+Prior work highlights reproducibility challenges but lacks empirical validation of pipeline robustness.
+
+\subsection{Data-Centric Systems}
+Provenance and data-centric frameworks improve traceability but do not address recovery mechanisms.
+
+\subsection{Self-Adaptive Systems}
+Self-healing concepts exist in software systems but lack experimental validation in ML pipelines.
+
+\subsection{Research Gap}
+There is no standardized benchmarking framework for evaluating pipeline reliability under failure conditions.
+
+\section{Methodology}
+
+\subsection{Benchmark Design}
+We design a controlled benchmarking framework consisting of predefined failure scenarios, recovery strategies, and evaluation metrics.
+
+\subsection{Failure Scenarios}
+\begin{itemize}
+    \item Data Drift
+    \item Schema Change
+    \item Training Failure
+\end{itemize}
+
+\subsection{Pipeline Variants}
+We evaluate multiple pipeline strategies including drift-based retraining and retry mechanisms.
+
+\subsection{Self-Healing Score (SHS)}
+
+\begin{equation}
+SHS = w_D D + w_R R + w_C C + w_S S
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $D$ = Detection effectiveness
+    \item $R$ = Response efficiency
+    \item $C$ = Coverage
+    \item $S$ = Stability
+\end{itemize}
+
+Weights used:
+\[
+(0.25, 0.30, 0.25, 0.20)
+\]
+
+\section{Experimental Setup}
+
+\subsection{Dataset}
+We use real-world taxi trip data. Preliminary analysis confirms natural distributional drift:
+\begin{itemize}
+    \item Trip distance: +5.0\%
+    \item Fare amount: +2.3\%
+\end{itemize}
+
+\subsection{Metrics}
+\begin{itemize}
+    \item Recovery rate
+    \item Recovery time
+    \item Model performance
+    \item SHS
+\end{itemize}
+
+\section{Results}
+
+\subsection{Metric Validation}
+SHS demonstrated strong face validity, with rankings aligning with expected behavior across pipeline strategies.
+
+\subsection{Sensitivity Analysis}
+Observed rank instability under tightly clustered scores, attributed to small score spread.
+
+\subsection{Pipeline Failure Analysis}
+
+\textbf{Retraining Buffer Poisoning:}
+
+\begin{itemize}
+    \item RMSE increased progressively (+8.5\% to +66.4\%)
+    \item Detection was accurate (TTD $\approx$ 0.47s)
+    \item Recovery failed due to contaminated retraining data
+\end{itemize}
+
+\subsection{Key Observation}
+High detection performance does not guarantee effective recovery.
+
+\section{Discussion}
+
+\subsection{Detection–Recovery Decoupling}
+Detection and recovery are independent dimensions of pipeline performance.
+
+\subsection{Implications}
+Monitoring alone is insufficient; recovery strategies must be validated.
+
+\subsection{Metric Effectiveness}
+SHS captures multi-dimensional pipeline behavior effectively.
+
+\section{Threats to Validity}
+
+\begin{itemize}
+    \item Limited number of trials
+    \item Dataset-specific drift patterns
+    \item Simplified pipeline implementations
+\end{itemize}
+
+\section{Conclusion}
+
+We propose a benchmarking framework for evaluating self-healing behavior in MLOps pipelines. Our experiments reveal critical limitations in existing recovery strategies and highlight the need for standardized evaluation methods.
+
+Future work includes extending the benchmark and incorporating additional failure scenarios.
+
+\section*{References}
+
+\begin{thebibliography}{00}
+
+\bibitem{ref1} S. J. Warnett et al., ``MLOps Pipeline Generation for Reinforcement Learning,'' 2026.
+\bibitem{ref2} H. Semmelrock et al., ``Reproducibility in Machine Learning-based Research,'' 2024.
+\bibitem{ref3} J. Jin et al., ``SmartMLOps Studio,'' 2025.
+
+\end{thebibliography}
+
+\end{document}
