@@ -133,9 +133,10 @@ class AnomalySignalExtractor:
                     ref_sample = self.ref_means[col] + \
                                  self.ref_stds[col] * \
                                  np.random.randn(len(batch))
-                    ks_stat, _ = scipy_stats.ks_2samp(
-                        ref_sample, batch[col].dropna().values)
-                    ks_scores.append(ks_stat)
+                    col_vals = batch[col].dropna().values
+                    if len(col_vals) >= 20:
+                        ks_stat, _ = scipy_stats.ks_2samp(ref_sample, col_vals)
+                        ks_scores.append(ks_stat)
 
             signals["feature_drift"]      = float(drift_share)
             signals["distribution_shift"] = float(np.mean(ks_scores)) \
@@ -151,6 +152,11 @@ class AnomalySignalExtractor:
         # ── output_monitor signals ────────────────────────────────
         signals["rmse_degradation"]      = 0.0  # filled by pipeline
         signals["concept_drift_signal"]  = 0.0  # filled by pipeline
+
+        # Boost data_ingestion signal when NaN rate is high
+        if signals["nan_rate"] > 0.15 or signals["schema_change"] > 0.1:
+            signals["high_error_rate"]  *= 0.3   # discount downstream signals
+            signals["rmse_degradation"] *= 0.3
 
         return signals
 

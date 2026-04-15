@@ -226,3 +226,26 @@ nuanced distinctions between fault types.
    Named: "Reward Shortcut Problem in RL-based Pipeline Healing"
    Recommendation in paper: RL autoscalers require >150k timesteps
    or shaped rewards to learn fault-specific policies.
+
+### Finding 4.1 — P4 RCA Accuracy Varies by Fault Type
+**When:** Day 1, P4 smoke test
+**Observed:**
+- endpoint_kill:  RCA_correct=True,  confidence=1.00 (perfect)
+- compound_fault: RCA_correct=False, confidence=0.50 (misclassified)
+- schema_drift:   RCA_correct=False, confidence=0.25 (misclassified)
+
+**Pattern:** P4 localizes correctly when fault signals are
+unambiguous and strong (endpoint_kill). Fails when:
+(a) compound faults fire multiple nodes simultaneously
+(b) schema faults reduce batch size, degrading signal quality
+
+**Fix applied:**
+- KS test sample size guard (SmallSampleWarning resolved)
+- NaN rate signal boosted to discount downstream signals
+  when data_ingestion is likely root cause
+
+**Paper significance:** RCA accuracy is itself a measurable
+property of P4. Report RCA accuracy per fault class as a
+secondary metric alongside SHS. Confirms that compound faults
+are the hardest class for causal localization — motivates
+future work on multi-root-cause RCA.
