@@ -46,18 +46,15 @@ from pipelines.p4_causal_rca.p4_pipeline       import P4Pipeline
 # ------------------------------------------------------------------ #
 
 FAULT_TYPES = [
-    "statistical_drift",
-    "label_poison",
-    "batch_corruption",
-    "concept_drift",
-    "endpoint_kill",
-    "schema_drift",
-    "memory_pressure",
-    "compound_fault",
+    "statistical_drift",   # core ML/data failure
+    "schema_drift",        # structural/data pipeline issue
+    "endpoint_kill",       # infrastructure failure
+    "memory_pressure",     # resource stress (RL-relevant)
+    "compound_fault",      # combined failure (most important case)
 ]
 
 SEVERITIES  = [0.1, 0.3, 0.5]
-N_TRIALS    = 10
+N_TRIALS    = 3
 
 DATA_PATH_2019 = os.path.join("data", "yellow_tripdata_2019-01.csv")
 DATA_PATH_2020 = os.path.join("data", "yellow_tripdata_2020-01.csv")
