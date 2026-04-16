@@ -299,6 +299,7 @@ def run_all_experiments(pipelines: list,
 # ------------------------------------------------------------------ #
 
 def main():
+    global FAULT_TYPES, N_TRIALS
     parser = argparse.ArgumentParser(
         description="SH-Bench Experiment Runner")
     parser.add_argument("--resume",   action="store_true",
@@ -335,7 +336,6 @@ def main():
     pipelines = [(pid, raw_pipelines[pid]) for pid in pipeline_ids]
 
     # ── Override experiment matrix if args provided ───────────────
-    global FAULT_TYPES, N_TRIALS
     if args.faults:
         FAULT_TYPES = args.faults
     if args.trials:
