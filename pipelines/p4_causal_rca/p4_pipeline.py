@@ -185,36 +185,45 @@ class CausalLocalizer:
     def localize(self, signals: dict) -> tuple[str, float]:
         """
         Returns (root_cause_node, confidence_score).
-        confidence_score ∈ [0, 1].
+        Uses signal priority rules before falling back to scoring.
         """
+        # Rule 1: Strong schema/NaN signal → data_ingestion wins outright
+        if (signals.get("nan_rate", 0) > 0.15 or
+                signals.get("schema_change", 0) > 0.1):
+            return "data_ingestion", max(
+                signals.get("nan_rate", 0),
+                signals.get("schema_change", 0))
+
+        # Rule 2: Explicit endpoint failure → model_serving wins outright
+        if signals.get("endpoint_failure", 0) > 0.5:
+            return "model_serving", 1.0
+
+        # Rule 3: Strong feature drift without endpoint failure
+        # → feature_pipeline
+        if (signals.get("feature_drift", 0) > 0.4 or
+                signals.get("distribution_shift", 0) > 0.4):
+            return "feature_pipeline", max(
+                signals.get("feature_drift", 0),
+                signals.get("distribution_shift", 0))
+
+        # Rule 4: Concept drift signal → output_monitor
+        if signals.get("concept_drift_signal", 0) > 0.2:
+            return "output_monitor", signals["concept_drift_signal"]
+
+        # Fallback: score all nodes
         node_scores = {}
-
         for node, config in CAUSAL_DAG.items():
-            node_signal_vals = [signals.get(s, 0.0)
-                                for s in config["signals"]]
-            node_scores[node] = np.mean(node_signal_vals) \
-                                 if node_signal_vals else 0.0
+            vals = [signals.get(s, 0.0) for s in config["signals"]]
+            node_scores[node] = np.mean(vals) if vals else 0.0
 
-        # Causal ordering penalty — downstream nodes penalized
-        # if upstream nodes also have high scores
-        ordering = ["data_ingestion", "feature_pipeline",
-                     "model_serving", "output_monitor"]
-
-        for i, node in enumerate(ordering):
-            upstream_scores = [node_scores[ordering[j]]
-                                for j in range(i)]
-            if upstream_scores and max(upstream_scores) > 0.4:
-                # Upstream already has strong signal —
-                # discount this node
-                node_scores[node] *= 0.6
-
-        root_cause  = max(node_scores, key=node_scores.get)
-        confidence  = node_scores[root_cause]
+        root_cause = max(node_scores, key=node_scores.get)
+        confidence = node_scores[root_cause]
 
         if confidence < 0.1:
             return "unknown", confidence
 
         return root_cause, confidence
+
 
 
 # ------------------------------------------------------------------ #
