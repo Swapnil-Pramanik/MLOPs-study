@@ -551,15 +551,19 @@ class P4Pipeline:
 
         # Check RCA accuracy — did we correctly identify root cause?
         expected_node = FAULT_TO_NODE.get(fault_type, "unknown")
-        dominant_rca  = max(self.rca_log,
-                            key=lambda x: x["confidence"],
-                            default={"root_cause": "unknown"})
-        rca_correct   = dominant_rca["root_cause"] == expected_node
+        # Use majority vote across all RCA detections, not just max confidence
+        from collections import Counter
+        if self.rca_log:
+            vote_counts = Counter(r["root_cause"] for r in self.rca_log)
+            dominant_node = vote_counts.most_common(1)[0][0]
+        else:
+            dominant_node = "unknown"
+        rca_correct = dominant_node == expected_node
 
         print(f"  [P4] Done | healed={healed} | "
               f"RCA_correct={rca_correct} | "
               f"expected={expected_node} | "
-              f"got={dominant_rca['root_cause']} | "
+              f"got={dominant_node} | "
               f"post_heal_rmse={post_heal_rmse:.4f}")
 
         return ExperimentResult(
